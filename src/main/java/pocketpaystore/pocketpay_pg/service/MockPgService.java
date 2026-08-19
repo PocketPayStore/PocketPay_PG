@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import pocketpaystore.pocketpay_pg.domain.MockTransaction;
 import pocketpaystore.pocketpay_pg.domain.MockTransactionStatus;
@@ -18,6 +19,7 @@ import pocketpaystore.pocketpay_pg.dto.CancelResponse;
 import pocketpaystore.pocketpay_pg.dto.TransactionStatusResponse;
 import pocketpaystore.pocketpay_pg.repository.MockTransactionStore;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MockPgService {
@@ -26,8 +28,13 @@ public class MockPgService {
 	private final WebhookSender webhookSender;
 
 	public ResponseEntity<?> approve(String idempotencyKey, ApprovalRequest request) {
+		log.info("[MockPg] approve 요청 수신: idempotencyKey={}, paymentKey={}, orderNumber={}",
+				idempotencyKey, request.getPaymentKey(), request.getOrderNumber());
+
 		MockTransaction existing = transactionStore.findByIdempotencyKey(idempotencyKey).orElse(null);
 		if (existing != null) {
+			log.info("[MockPg] 기존 거래 재반환(멱등): idempotencyKey={}, pgTransactionId={}",
+					idempotencyKey, existing.getPgTransactionId());
 			return ResponseEntity.ok(toApprovalResponse(existing));
 		}
 
