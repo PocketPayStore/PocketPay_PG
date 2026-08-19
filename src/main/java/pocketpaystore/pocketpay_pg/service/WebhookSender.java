@@ -30,8 +30,8 @@ public class WebhookSender {
 	private final String webhookSecret;
 
 	public WebhookSender(ObjectMapper objectMapper,
-						  @Value("${pocketpay-core.webhook-url:http://localhost:8080/api/webhooks/pg}") String webhookUrl,
-						  @Value("${mock-pg.webhook.secret:mock-pg-webhook-secret}") String webhookSecret) {
+						  @Value("${pocketpay-core.webhook-url}") String webhookUrl,
+						  @Value("${mock-pg.webhook.secret}") String webhookSecret) {
 		this.restClient = RestClient.create();
 		this.objectMapper = objectMapper;
 		this.webhookUrl = webhookUrl;
