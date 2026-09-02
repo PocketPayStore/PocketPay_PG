@@ -2,6 +2,7 @@ package pocketpaystore.pocketpay_pg.service;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -88,12 +89,19 @@ public class MockPgService {
 	}
 
 	public ResponseEntity<?> getTransaction(String pgTransactionId) {
+		sleepRandomly(3000, 5000);
+
 		MockTransaction transaction = transactionStore.findByTransactionId(pgTransactionId).orElse(null);
 		if (transaction == null) {
 			return errorResponse(HttpStatus.NOT_FOUND, "존재하지 않는 거래입니다.");
 		}
 		return ResponseEntity.ok(new TransactionStatusResponse(
 				transaction.getPgTransactionId(), transaction.getStatus().name(), transaction.getApprovedAt()));
+	}
+
+	private void sleepRandomly(long minimumMillis, long maximumMillis) {
+		long delayMillis = ThreadLocalRandom.current().nextLong(minimumMillis, maximumMillis + 1);
+		sleepIfNeeded(delayMillis);
 	}
 
 	private ApprovalResponse toApprovalResponse(MockTransaction transaction) {
